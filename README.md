@@ -2,6 +2,9 @@
 
 A command-line utility to list code changes from a GitHub repository for a specific branch with advanced branch comparison capabilities.
 
+# Example:
+![image](https://github.com/user-attachments/assets/ee00c098-523f-487e-9580-a9223d9d3fae)
+
 ## Features
 
 - Display recent commits from a specified GitHub repository and branch
