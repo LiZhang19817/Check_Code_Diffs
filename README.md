@@ -1,4 +1,4 @@
-# Quay QE team GitHub Changes CLI
+# Quay QE team GitHub Repository Changes CLI
 
 A command-line utility to list code changes from a GitHub repository for a specific branch with advanced branch comparison capabilities.
 
