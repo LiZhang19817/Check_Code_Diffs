@@ -3,7 +3,9 @@
 A command-line utility to list code changes from a GitHub repository for a specific branch with advanced branch comparison capabilities.
 
 # Example:
-![image](https://github.com/user-attachments/assets/ee00c098-523f-487e-9580-a9223d9d3fae)
+Compare the changes of Quay latest branches redhat-3.14 and redhat-3.15
+![image](https://github.com/user-attachments/assets/71d9e91b-b27d-40d2-975f-86fc43a3547f)
+
 
 ## Features
 
