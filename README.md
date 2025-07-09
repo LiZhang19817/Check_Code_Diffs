@@ -1,14 +1,10 @@
-# Quay QE team GitHub Repository Changes list CLI
+# Quay QE Team Changes Analyzer
 
-A command-line utility to list code changes from a GitHub repository for a specific branch with advanced branch comparison capabilities.
-
-# Example:
-Compare the changes of Quay latest branches redhat-3.14 and redhat-3.15
-![image](https://github.com/user-attachments/assets/71d9e91b-b27d-40d2-975f-86fc43a3547f)
-
+A comprehensive tool to analyze and compare code changes from GitHub repositories, available as both a command-line utility and a modern web interface.
 
 ## Features
 
+### 🖥️ **Command Line Interface (CLI)**
 - Display recent commits from a specified GitHub repository and branch
 - **Time-filtered branch comparison**: Compare two branches within a specific time period
 - Show commit details including:
@@ -26,6 +22,20 @@ Compare the changes of Quay latest branches redhat-3.14 and redhat-3.15
 - Progress tracking while fetching commits
 - Configurable display limits
 
+### 🌐 **Web Interface**
+- **Modern, responsive UI** with Bootstrap styling
+- **Interactive forms** for easy repository and branch selection
+- **Real-time GitHub token validation** with user info display
+- **Dual-mode operation**:
+  - Single branch analysis
+  - Time-filtered branch comparison
+- **Rich data visualization**:
+  - Side-by-side statistics panels
+  - Color-coded commit tables
+  - Interactive commit links to GitHub
+- **Persistent token storage** in browser localStorage
+- **Mobile-friendly design** that works on all devices
+
 ## Installation
 
 1. Clone this repository
@@ -36,8 +46,9 @@ pip install -r requirements.txt
 
 ## Configuration
 
-You need a GitHub personal access token to use this utility. You can provide it in two ways:
+You need a GitHub personal access token to use this utility. You can provide it in several ways:
 
+### For CLI:
 1. Set it as an environment variable:
 ```bash
 export GITHUB_TOKEN=your_github_token
@@ -48,16 +59,38 @@ export GITHUB_TOKEN=your_github_token
 GITHUB_TOKEN=your_github_token
 ```
 
-To create a GitHub personal access token:
-1. Go to GitHub Settings > Developer settings > Personal access tokens
+### For Web Interface:
+- Enter your token directly in the web interface
+- The token is validated in real-time and stored securely in your browser
+
+### Creating a GitHub Token:
+1. Go to [GitHub Settings > Developer settings > Personal access tokens](https://github.com/settings/tokens)
 2. Generate a new token with `repo` scope
 3. Copy the token and save it securely
 
 ## Usage
 
-The utility accepts repository names in multiple formats and supports both single branch analysis and time-filtered branch comparison:
+### 🌐 Web Interface (Recommended)
 
-### Single Branch Mode (Default)
+Start the web interface:
+```bash
+python start_web.py
+```
+
+The web interface will automatically open in your browser at `http://localhost:5000`
+
+**Features:**
+- **Token Management**: Validate and store your GitHub token
+- **Single Branch Analysis**: Analyze commits from a specific branch
+- **Branch Comparison**: Compare two branches with time filtering
+- **Interactive Results**: Click commit hashes to view on GitHub
+- **Responsive Design**: Works on desktop, tablet, and mobile
+
+### 🖥️ Command Line Interface
+
+The CLI accepts repository names in multiple formats and supports both single branch analysis and time-filtered branch comparison:
+
+#### Single Branch Mode (Default)
 
 ```bash
 # Basic usage (defaults to 'main' branch and last 30 days)
@@ -79,7 +112,7 @@ python github_changes.py --days 7 owner/repository
 python github_changes.py --limit 10 owner/repository
 ```
 
-### Branch Comparison Mode
+#### Branch Comparison Mode
 
 Compare changes between two branches, optionally within a specific time period:
 
@@ -97,7 +130,7 @@ python github_changes.py --compare main..dev --days 14 --limit 15 owner/reposito
 python github_changes.py --token YOUR_TOKEN --compare main..feature owner/repository
 ```
 
-### Advanced Examples
+#### Advanced Examples
 
 ```bash
 # Get last 30 days of changes (default)
@@ -171,6 +204,18 @@ python github_changes.py --compare production..staging --days 7 owner/repo
 python github_changes.py --compare testing..development --days 14 owner/repo
 ```
 
+## API Endpoints (Web Interface)
+
+The web interface provides these REST API endpoints:
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | Main web interface |
+| `/api/validate-token` | POST | Validate GitHub token |
+| `/api/branches/<repo>` | GET | Get repository branches |
+| `/api/changes` | POST | Get single branch changes |
+| `/api/compare` | POST | Compare two branches |
+
 ## Command Line Options
 
 | Option | Description | Default |
@@ -182,7 +227,9 @@ python github_changes.py --compare testing..development --days 14 owner/repo
 
 ## Output
 
-### Single Branch Mode
+### CLI Output
+
+#### Single Branch Mode
 The utility displays a table with commit information:
 - Short commit hash
 - Author username
@@ -192,7 +239,7 @@ The utility displays a table with commit information:
 - Number of lines added (green)
 - Number of lines deleted (red)
 
-### Branch Comparison Mode
+#### Branch Comparison Mode
 The utility shows:
 1. **Side-by-side summary panels** with statistics for each branch
 2. **Comparison summary** with common commits and divergence info
@@ -201,7 +248,63 @@ The utility shows:
    - 🟢 Commits unique to compare branch
    - 🟡 Common commits in both branches
 
-This enhanced comparison mode helps teams understand:
+### Web Interface Output
+
+The web interface provides:
+- **Interactive statistics cards** with color-coded metrics
+- **Sortable, clickable commit tables** with GitHub links
+- **Responsive design** that adapts to screen size
+- **Real-time loading indicators** and error handling
+- **Persistent user session** with token storage
+
+## Development
+
+### Running the Web Interface for Development
+
+```bash
+# Start development server
+python start_web.py
+
+# Or run Flask directly
+python app.py
+```
+
+### Production Deployment
+
+For production deployment, use a WSGI server like Gunicorn:
+
+```bash
+# Install gunicorn (already in requirements.txt)
+pip install gunicorn
+
+# Run with gunicorn
+gunicorn -w 4 -b 0.0.0.0:5000 app:app
+```
+
+## Security Notes
+
+- GitHub tokens are handled securely and never logged
+- Web interface stores tokens only in browser localStorage
+- All API requests require valid authentication
+- CORS is configured for local development
+
+## Troubleshooting
+
+### Common Issues
+
+1. **"GitHub token is required"**: Ensure your token is set in environment variables or entered in the web interface
+2. **"Repository not found"**: Check the repository name format and your token permissions
+3. **"Rate limit exceeded"**: GitHub API has rate limits; wait a few minutes and try again
+4. **Web interface not loading**: Ensure all dependencies are installed and port 5000 is available
+
+### Getting Help
+
+- Check the GitHub token has appropriate permissions (`repo` scope)
+- Verify the repository name format: `owner/repository`
+- Ensure the branch names exist in the repository
+- For web interface issues, check browser console for errors
+
+This enhanced tool helps teams understand:
 - **Branch divergence**: How much branches have diverged over time
 - **Feature progress**: What's been developed in feature branches
 - **Integration planning**: What needs to be merged and when

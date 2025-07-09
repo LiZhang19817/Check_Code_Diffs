@@ -2,3 +2,6 @@ PyGithub==2.2.0
 click==8.1.7
 rich==13.7.0
 python-dotenv==1.0.1
+Flask==3.0.0
+Flask-CORS==4.0.0
+gunicorn==21.2.0
