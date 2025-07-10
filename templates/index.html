@@ -798,6 +798,9 @@
         async function loadBranches(repoInputId, branchSelectId) {
             console.log('loadBranches called with:', repoInputId, branchSelectId);
             
+            // Start timing
+            const startTime = performance.now();
+            
             if (!githubToken) {
                 console.log('No GitHub token available');
                 const helpText = document.getElementById(branchSelectId).closest('.col-md-3').querySelector('small');
@@ -823,12 +826,22 @@
             const branchSelect = document.getElementById(branchSelectId);
             const currentValue = branchSelect.value;
 
-            // Update help text to show loading
+            // Update help text to show loading with timer
             const helpText = branchSelect.closest('.col-md-3').querySelector('small') || 
                            branchSelect.parentElement.nextElementSibling;
             if (helpText && (helpText.tagName === 'SMALL' || helpText.classList.contains('text-muted'))) {
                 helpText.textContent = 'Loading branches...';
                 helpText.className = 'text-info';
+                
+                // Start a timer to show elapsed time
+                const timerInterval = setInterval(() => {
+                    const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
+                    const dots = '.'.repeat((Math.floor(elapsed * 2) % 4) + 1);
+                    helpText.textContent = `Loading branches${dots} (${elapsed}s)`;
+                }, 100);
+                
+                // Store the interval ID so we can clear it later
+                helpText.timerInterval = timerInterval;
             }
 
             // Check server status first
@@ -836,6 +849,11 @@
             if (!serverOk) {
                 console.error('Server is not responding');
                 if (helpText) {
+                    // Clear timer
+                    if (helpText.timerInterval) {
+                        clearInterval(helpText.timerInterval);
+                        delete helpText.timerInterval;
+                    }
                     helpText.textContent = 'Server not responding. Please refresh the page.';
                     helpText.className = 'text-danger';
                 }
@@ -869,6 +887,9 @@
                 console.log('Branches API response data:', data);
 
                 if (data.success) {
+                    // Calculate completion time
+                    const completionTime = ((performance.now() - startTime) / 1000).toFixed(1);
+                    
                     // Clear existing options
                     branchSelect.innerHTML = '';
                     
@@ -888,16 +909,26 @@
                         branchSelect.appendChild(option);
                     });
 
-                    console.log(`Successfully loaded ${data.branches.length} branches`);
+                    console.log(`Successfully loaded ${data.branches.length} branches in ${completionTime}s`);
 
-                    // Update help text
+                    // Update help text with completion time
                     if (helpText && (helpText.tagName === 'SMALL' || helpText.classList.contains('text-info'))) {
-                        helpText.textContent = `${data.branches.length} branches loaded`;
+                        // Clear timer
+                        if (helpText.timerInterval) {
+                            clearInterval(helpText.timerInterval);
+                            delete helpText.timerInterval;
+                        }
+                        helpText.textContent = `${data.branches.length} branches loaded in ${completionTime}s`;
                         helpText.className = 'text-success';
                     }
                 } else {
                     console.error('Failed to load branches:', data.error);
                     if (helpText && (helpText.tagName === 'SMALL' || helpText.classList.contains('text-info'))) {
+                        // Clear timer
+                        if (helpText.timerInterval) {
+                            clearInterval(helpText.timerInterval);
+                            delete helpText.timerInterval;
+                        }
                         helpText.textContent = `Failed to load branches: ${data.error}`;
                         helpText.className = 'text-danger';
                     }
@@ -905,7 +936,13 @@
             } catch (error) {
                 console.error('Error loading branches:', error);
                 if (helpText && (helpText.tagName === 'SMALL' || helpText.classList.contains('text-info'))) {
-                    helpText.textContent = `Error loading branches: ${error.message}`;
+                    // Clear timer
+                    if (helpText.timerInterval) {
+                        clearInterval(helpText.timerInterval);
+                        delete helpText.timerInterval;
+                    }
+                    const errorTime = ((performance.now() - startTime) / 1000).toFixed(1);
+                    helpText.textContent = `Error loading branches: ${error.message} (${errorTime}s)`;
                     helpText.className = 'text-danger';
                 }
             }
