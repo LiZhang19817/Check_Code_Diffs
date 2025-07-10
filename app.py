@@ -219,6 +219,39 @@ def compare_branches():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/branches', methods=['POST'])
+def get_repository_branches():
+    """Get list of branches for a repository via POST."""
+    try:
+        data = request.json
+        token = data.get('token')
+        repo = data.get('repo')
+        
+        if not token:
+            return jsonify({'success': False, 'error': 'GitHub token is required'}), 401
+        
+        if not repo:
+            return jsonify({'success': False, 'error': 'Repository is required'}), 400
+        
+        normalized_repo = normalize_repo_name(repo)
+        g = Github(token)
+        github_repo = g.get_repo(normalized_repo)
+        
+        branches = []
+        for branch in github_repo.get_branches():
+            branches.append(branch.name)
+        
+        # Sort branches to put master/main first
+        branches.sort(key=lambda x: (x not in ['master', 'main'], x))
+        
+        return jsonify({
+            'success': True,
+            'branches': branches
+        })
+    
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/validate-token', methods=['POST'])
 def validate_token():
     """Validate GitHub token."""
