@@ -2,6 +2,11 @@
 
 A comprehensive tool to analyze and compare code changes from GitHub repositories, available as both a command-line utility and a modern web interface.
 
+## Examples
+<img width="1066" alt="image" src="https://github.com/user-attachments/assets/177417df-f825-4ef3-a0be-8e10958bf542" />
+<img width="1066" alt="image" src="https://github.com/user-attachments/assets/3257d7ef-0818-4678-9975-9a1fcd00fa38" />
+
+
 ## Features
 
 ### 🖥️ **Command Line Interface (CLI)**
