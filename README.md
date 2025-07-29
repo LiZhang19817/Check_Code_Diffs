@@ -5,10 +5,13 @@ A comprehensive tool to analyze and compare code changes from GitHub repositorie
 ## Features
 ### Home Page:
 <img width="1200" height="1003" alt="image" src="https://github.com/user-attachments/assets/7502de3d-49a3-46e7-b422-407e355cb4d1" />
+
 ### Sinle Bracnch:
 <img width="1200" height="1003" alt="image" src="https://github.com/user-attachments/assets/9bd33393-4437-4cbb-bd73-2051306be9e5" />
+
 ### Complare Branch:
 <img width="1200" height="1003" alt="image" src="https://github.com/user-attachments/assets/81695c7d-bd17-4d4c-85b8-0b297218a743" />
+
 ### Seach PR with Jira ID:
 <img width="1200" height="1003" alt="image" src="https://github.com/user-attachments/assets/14ab414d-7ada-42f7-ad83-20fffe3cca7c" />
 
