@@ -2,16 +2,13 @@
 
 A comprehensive tool to analyze and compare code changes from GitHub repositories, available as both a command-line utility and a modern web interface.
 
-## Examples
-<img width="1066" alt="image" src="https://github.com/user-attachments/assets/177417df-f825-4ef3-a0be-8e10958bf542" />
-<img width="1066" alt="image" src="https://github.com/user-attachments/assets/3257d7ef-0818-4678-9975-9a1fcd00fa38" />
-
-
 ## Features
 
 ### 🖥️ **Command Line Interface (CLI)**
 - Display recent commits from a specified GitHub repository and branch
 - **Time-filtered branch comparison**: Compare two branches within a specific time period
+- **Pull request analysis**: List and analyze pull requests for any branch
+- **Jira integration**: Filter PRs by Jira ticket ID (e.g., PROJQUAY-9184)
 - Show commit details including:
   - Commit hash
   - Author
@@ -19,6 +16,13 @@ A comprehensive tool to analyze and compare code changes from GitHub repositorie
   - Commit message
   - Number of files changed
   - Number of additions and deletions
+- Show pull request details including:
+  - PR number and title
+  - State (open/closed/draft)
+  - Author and update time
+  - Source and target branches
+  - Comments and review counts
+  - Files changed and code additions/deletions
 - **Advanced comparison analytics**:
   - Unique commits per branch
   - Common commits between branches
@@ -31,13 +35,19 @@ A comprehensive tool to analyze and compare code changes from GitHub repositorie
 - **Modern, responsive UI** with Bootstrap styling
 - **Interactive forms** for easy repository and branch selection
 - **Real-time GitHub token validation** with user info display
-- **Dual-mode operation**:
+- **Triple-mode operation**:
   - Single branch analysis
   - Time-filtered branch comparison
+  - Pull request analysis for specific branches
+- **Advanced filtering**:
+  - Time period filtering (1-90 days or all time)
+  - PR state filtering (open/closed/all)
+  - Jira ID filtering for ticket-specific searches
 - **Rich data visualization**:
   - Side-by-side statistics panels
-  - Color-coded commit tables
-  - Interactive commit links to GitHub
+  - Color-coded commit and pull request tables
+  - Interactive commit and PR links to GitHub
+  - State-aware pull request badges
 - **Persistent token storage** in browser localStorage
 - **Mobile-friendly design** that works on all devices
 
@@ -98,7 +108,7 @@ The CLI accepts repository names in multiple formats and supports both single br
 #### Single Branch Mode (Default)
 
 ```bash
-# Basic usage (defaults to 'main' branch and last 30 days)
+# Basic usage (defaults to 'main' branch and last 3 days)
 python github_changes.py owner/repository
 
 # Using github.com format
@@ -135,10 +145,37 @@ python github_changes.py --compare main..dev --days 14 --limit 15 owner/reposito
 python github_changes.py --token YOUR_TOKEN --compare main..feature owner/repository
 ```
 
+#### Pull Request Analysis Mode
+
+Analyze pull requests for a specific branch:
+
+```bash
+# List all pull requests for main branch
+python github_changes.py --pull-requests owner/repository main
+
+# List only open pull requests
+python github_changes.py --pull-requests --pr-state open owner/repository main
+
+# List pull requests updated in last 7 days
+python github_changes.py --pull-requests --days 7 owner/repository feature-branch
+
+# List closed pull requests with limit
+python github_changes.py --pull-requests --pr-state closed --limit 10 owner/repository
+
+# Analyze pull requests for a feature branch
+python github_changes.py --pull-requests --pr-state all --days 30 owner/repository feature-auth
+
+# Filter pull requests by Jira ID
+python github_changes.py --pull-requests --jira-id PROJQUAY-9184 owner/repository main
+
+# Combine Jira ID filter with other options
+python github_changes.py --pull-requests --pr-state open --jira-id PROJQUAY-9184 --days 7 owner/repository
+```
+
 #### Advanced Examples
 
 ```bash
-# Get last 30 days of changes (default)
+# Get last 3 days of changes (default)
 python github_changes.py microsoft/vscode main
 
 # Get last 7 days of changes
@@ -155,6 +192,18 @@ python github_changes.py --compare main..feature-auth --days 3 owner/repo
 
 # Show only 5 commits per section in comparison
 python github_changes.py --compare main..dev --limit 5 owner/repo
+
+# List all PRs for main branch in last 2 weeks
+python github_changes.py --pull-requests --days 14 quay/quay main
+
+# Check open PRs for release branch
+python github_changes.py --pull-requests --pr-state open owner/repo release-v2.0
+
+# Analyze recent PR activity on feature branch
+python github_changes.py --pull-requests --days 7 --limit 15 owner/repo feature-branch
+
+# Find PRs related to specific Jira ticket
+python github_changes.py --pull-requests --jira-id PROJQUAY-9184 quay/quay master
 ```
 
 ## Time-Filtered Branch Comparison Features
@@ -209,6 +258,33 @@ python github_changes.py --compare production..staging --days 7 owner/repo
 python github_changes.py --compare testing..development --days 14 owner/repo
 ```
 
+### 📋 **Pull Request Management**
+```bash
+# Review activity: What PRs are currently open?
+python github_changes.py --pull-requests --pr-state open owner/repo main
+
+# Weekly review: PR activity in last 7 days
+python github_changes.py --pull-requests --days 7 owner/repo
+
+# Feature branch status: PRs related to feature branch
+python github_changes.py --pull-requests owner/repo feature-auth
+
+# Release preparation: Check PRs targeting release branch
+python github_changes.py --pull-requests --pr-state open owner/repo release-v2.1
+```
+
+### 🎫 **Jira Integration**
+```bash
+# Find all PRs related to a specific Jira ticket
+python github_changes.py --pull-requests --jira-id PROJQUAY-9184 owner/repo
+
+# Check recent open PRs for a Jira ticket
+python github_changes.py --pull-requests --pr-state open --jira-id PROJQUAY-9184 --days 14 owner/repo
+
+# Track Jira ticket progress across branches
+python github_changes.py --pull-requests --jira-id MYPROJ-1234 owner/repo feature-branch
+```
+
 ## API Endpoints (Web Interface)
 
 The web interface provides these REST API endpoints:
@@ -220,15 +296,19 @@ The web interface provides these REST API endpoints:
 | `/api/branches/<repo>` | GET | Get repository branches |
 | `/api/changes` | POST | Get single branch changes |
 | `/api/compare` | POST | Compare two branches |
+| `/api/pull-requests` | POST | Get pull requests for a branch |
 
 ## Command Line Options
 
 | Option | Description | Default |
 |--------|-------------|---------|
 | `--token` | GitHub personal access token | From `GITHUB_TOKEN` env var |
-| `--days` | Number of days to look back | 30 |
+| `--days` | Number of days to look back | 3 |
 | `--compare` | Compare branches (format: `base..compare`) | None |
-| `--limit` | Max commits to display per section | 20 |
+| `--pull-requests` | List pull requests for the specified branch | False |
+| `--pr-state` | Filter pull requests by state (open/closed/all) | all |
+| `--jira-id` | Filter pull requests containing this Jira ID | None |
+| `--limit` | Max commits/PRs to display per section | 20 |
 
 ## Output
 
@@ -253,11 +333,24 @@ The utility shows:
    - 🟢 Commits unique to compare branch
    - 🟡 Common commits in both branches
 
+#### Pull Request Mode
+The utility shows:
+1. **Summary statistics panel** with PR counts and breakdown
+2. **Pull request table** with:
+   - 🟢 PR number (linked to GitHub)
+   - 🔵 State with color coding (open/closed/draft)
+   - 🟡 Direction (FROM branch or TO branch)
+   - 📝 PR title and author
+   - 📅 Last updated date
+   - 💬 Comment counts (regular + review comments)
+   - 📊 Files changed and code statistics
+
 ### Web Interface Output
 
 The web interface provides:
 - **Interactive statistics cards** with color-coded metrics
-- **Sortable, clickable commit tables** with GitHub links
+- **Sortable, clickable commit and PR tables** with GitHub links
+- **State-aware badges** for pull request status
 - **Responsive design** that adapts to screen size
 - **Real-time loading indicators** and error handling
 - **Persistent user session** with token storage

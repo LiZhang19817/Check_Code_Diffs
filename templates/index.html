@@ -148,10 +148,68 @@
 
         
         .commit-message {
-            max-width: 300px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            max-width: 500px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            line-height: 1.4;
+            font-size: 0.9em;
+        }
+        
+        .commit-message-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .commit-message-body {
+            color: #6c757d;
+            font-size: 0.85em;
+            margin-top: 4px;
+            line-height: 1.3;
+        }
+
+        .commit-message-body code {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 3px;
+            padding: 1px 4px;
+            font-size: 0.9em;
+            color: #495057;
+        }
+
+        .badge-sm {
+            font-size: 0.7em;
+            padding: 0.2em 0.4em;
+        }
+
+        /* Table column widths for better message display */
+        .table th:nth-child(1) { width: 8%; }  /* Commit */
+        .table th:nth-child(2) { width: 12%; } /* Author */
+        .table th:nth-child(3) { width: 12%; } /* Date */
+        .table th:nth-child(4) { width: 50%; } /* Message - much wider */
+        .table th:nth-child(5) { width: 6%; }  /* Files */
+        .table th:nth-child(6) { width: 6%; }  /* + */
+        .table th:nth-child(7) { width: 6%; }  /* - */
+
+        /* Make tables horizontally scrollable on small screens */
+        .commit-table {
+            overflow-x: auto;
+        }
+
+        /* Improve table styling */
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            border-top: none;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .table td {
+            vertical-align: top;
+            padding: 12px 8px;
         }
         
 
@@ -341,10 +399,9 @@
         <div class="main-container">
             <div class="header">
                 <div class="logo-section">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MDAgMTgwIj4KICA8IS0tIEJsYWNrIEZlZG9yYSBIYXQgLS0+CiAgPCEtLSBIYXQgYnJpbSAtLT4KICA8ZWxsaXBzZSBjeD0iMTAwIiBjeT0iMTEwIiByeD0iODAiIHJ5PSIzNSIgZmlsbD0iIzAwMDAwMCIvPgogIDwhLS0gSGF0IGNyb3duIC0tPgogIDxlbGxpcHNlIGN4PSIxMDAiIGN5PSI4NSIgcng9IjY1IiByeT0iNDAiIGZpbGw9IiMwMDAwMDAiLz4KICA8ZWxsaXBzZSBjeD0iMTAwIiBjeT0iNjUiIHJ4PSI1NSIgcnk9IjMwIiBmaWxsPSIjMDAwMDAwIi8+CiAgPCEtLSBXaGl0ZSBiYW5kIC0tPgogIDxlbGxpcHNlIGN4PSIxMDAiIGN5PSI5NSIgcng9IjY1IiByeT0iMTAiIGZpbGw9IiNmZmZmZmYiLz4KICA8IS0tIFJlZCBIYXQgVGV4dCAtLT4KICA8dGV4dCB4PSIyMDAiIHk9IjcwIiBmb250LWZhbWlseT0iUmVkIEhhdCBEaXNwbGF5LCBBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI0NSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzAwMDAwMCI+UmVkIEhhdDwvdGV4dD4KICA8IS0tIFF1YXkgVGV4dCAtLT4KICA8dGV4dCB4PSIyMDAiIHk9IjEzMCIgZm9udC1mYW1pbHk9IlJlZCBIYXQgRGlzcGxheSwgQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNDUiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMwMDAwMDAiPlF1YXk8L3RleHQ+Cjwvc3ZnPg==" alt="Red Hat Quay" class="redhat-logo-img">
+                    <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDM4IDM4Ij48ZGVmcz48c3R5bGU+LnV1aWQtMjNhM2I1ZTctNzc1NC00OTQ0LWJhMjgtZWU2NWE5NjFkZGI1e2ZpbGw6I2UwMDt9LnV1aWQtYWU1ZDVlZjMtYjIwYi00MDE5LWE0ZTctZWRhY2ZhZWE0YzBme2ZpbGw6I2ZmZjt9LnV1aWQtMjI4OTNjYTEtMDk4Yi00YTJhLTlkNDUtM2NiYzViOTg2OWEwe2ZpbGw6IzRkNGQ0ZDt9PC9zdHlsZT48L2RlZnM+PGcgaWQ9InV1aWQtMTZkZjUyMDYtY2E2NC00MWRkLWI1N2UtNTVjNjYzNzBjYjk5Ij48cmVjdCB4PSIxIiB5PSIxIiB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHJ4PSI5IiByeT0iOSIvPjxwYXRoIGNsYXNzPSJ1dWlkLTIyODkzY2ExLTA5OGItNGEyYS05ZDQ1LTNjYmM1Yjk4NjlhMCIgZD0ibTI4LDIuMjVjNC4yNzMzNiwwLDcuNzUsMy40NzY2NCw3Ljc1LDcuNzV2MThjMCw0LjI3MzM2LTMuNDc2NjQsNy43NS03Ljc1LDcuNzVIMTBjLTQuMjczMzYsMC03Ljc1LTMuNDc2NjQtNy43NS03Ljc1VjEwYzAtNC4yNzMzNiwzLjQ3NjY0LTcuNzUsNy43NS03Ljc1aDE4bTAtMS4yNUgxMEM1LjAyOTQ0LDEsMSw1LjAyOTQzLDEsMTB2MThjMCw0Ljk3MDU3LDQuMDI5NDQsOSw5LDloMThjNC45NzA1NiwwLDktNC4wMjk0Myw5LTlWMTBjMC00Ljk3MDU3LTQuMDI5NDQtOS05LTloMFoiLz48L2c+PGcgaWQ9InV1aWQtNzI4Njg1MGItMWY3NC00MTZjLWE5MDEtMWQ1OTAzYmU3NTkyIj48cGF0aCBjbGFzcz0idXVpZC0yM2EzYjVlNy03NzU0LTQ5NDQtYmEyOC1lZTY1YTk2MWRkYjUiIGQ9Im0xNS40OTk1MSwyOS41MjQ5Yy0uMTAzMDMsMC0uMjA3MDMtLjAyNTM5LS4zMDMyMi0uMDc4NjEtLjMwMTc2LS4xNjc0OC0uNDEwMTYtLjU0ODM0LS4yNDI2OC0uODUwMWwzLjUtNi4yOTk4Yy4xNjY5OS0uMzAxNzYuNTQ1NDEtLjQxMDY0Ljg1MDEtLjI0MjY4LjMwMTc2LjE2NzQ4LjQxMDE2LjU0ODM0LjI0MjE5Ljg1MDFsLTMuNDk5NTEsNi4yOTk4Yy0uMTE0MjYuMjA1NTctLjMyNzE1LjMyMTI5LS41NDY4OC4zMjEyOVoiLz48cGF0aCBjbGFzcz0idXVpZC1hZTVkNWVmMy1iMjBiLTQwMTktYTRlNy1lZGFjZmFlYTRjMGYiIGQ9Im0xNS41MDA0OSwyOS41MjQ5Yy0uMjE5NzMsMC0uNDMyNjItLjExNTcyLS41NDY4OC0uMzIxMjlsLTUuNS05Ljg5OTljLS4xMDQ5OC0uMTg4OTYtLjEwNDk4LS40MTg0NiwwLS42MDc0Mmw1LjUtOS44OTk5Yy4xNjg0Ni0uMzAxMjcuNTQ4ODMtLjQwOTE4Ljg1MDEtLjI0MjY4LjMwMTc2LjE2NzQ4LjQxMDE2LjU0ODM0LjI0MjY4Ljg1MDFsLTUuMzMxNTQsOS41OTYxOSw1LjMzMTU0LDkuNTk2MTljLjE2NzQ4LjMwMTc2LjA1OTA4LjY4MjYyLS4yNDI2OC44NTAxLS4wOTYxOS4wNTMyMi0uMjAwNjguMDc4NjEtLjMwMzIyLjA3ODYxWiIvPjxwYXRoIGNsYXNzPSJ1dWlkLTIzYTNiNWU3LTc3NTQtNDk0NC1iYTI4LWVlNjVhOTYxZGRiNSIgZD0ibTIyLjQ5OTAyLDI5LjUyNDljLS4xMDI1NCwwLS4yMDYwNS0uMDI1MzktLjMwMjczLS4wNzg2MS0uMzAxNzYtLjE2NzQ4LS40MTAxNi0uNTQ4MzQtLjI0MjE5LS44NTAxbDUuNS05Ljg5OTljLjE2NjAyLS4zMDE3Ni41NDU5LS40MTA2NC44NDk2MS0uMjQyNjguMzAxNzYuMTY3NDguNDEwMTYuNTQ4MzQuMjQyMTkuODUwMWwtNS41LDkuODk5OWMtLjExMzI4LjIwNTU3LS4zMjcxNS4zMjEyOS0uNTQ2ODguMzIxMjlaIi8+PHBhdGggY2xhc3M9InV1aWQtMjNhM2I1ZTctNzc1NC00OTQ0LWJhMjgtZWU2NWE5NjFkZGI1IiBkPSJtMTkuMDAwOTgsMTYuMDI0OWMtLjIyMDIxLDAtLjQzMzExLS4xMTU3Mi0uNTQ3MzYtLjMyMTI5bC0zLjUtNi4yOTk4Yy0uMTY3NDgtLjMwMTc2LS4wNTkwOC0uNjgyNjIuMjQyNjgtLjg1MDFzLjY4MjEzLS4wNTkwOC44NTAxLjI0MjY4bDMuNDk5NTEsNi4yOTk4Yy4xNjc5Ny4zMDE3Ni4wNTk1Ny42ODI2Mi0uMjQyMTkuODUwMS0uMDk2NjguMDUzMjItLjIwMDIuMDc4NjEtLjMwMjczLjA3ODYxWiIvPjxwYXRoIGNsYXNzPSJ1dWlkLWFlNWQ1ZWYzLWIyMGItNDAxOS1hNGU3LWVkYWNmYWVhNGMwZiIgZD0ibTIyLjUwMDk4LDI5LjUyNDljLS4yMTk3MywwLS40MzI2Mi0uMTE1NzItLjU0Njg4LS4zMjEyOWwtNS41MDA0OS05Ljg5OTljLS4xMDQ5OC0uMTg4OTYtLjEwNDk4LS40MTg0NiwwLS42MDc0Mmw1LjUwMDQ5LTkuODk5OWMuMTY2MDItLjMwMTc2LjU0NTktLjQxMDE2Ljg0OTYxLS4yNDI2OC4zMDE3Ni4xNjc0OC40MTAxNi41NDgzNC4yNDIxOS44NTAxbC01LjMzMTA1LDkuNTk2MTksNS4zMzEwNSw5LjU5NjE5Yy4xNjc5Ny4zMDE3Ni4wNTk1Ny42ODI2Mi0uMjQyMTkuODUwMS0uMDk2NjguMDUzMjItLjIwMDIuMDc4NjEtLjMwMjczLjA3ODYxWiIvPjxwYXRoIGNsYXNzPSJ1dWlkLTIzYTNiNWU3LTc3NTQtNDk0NC1iYTI4LWVlNjVhOTYxZGRiNSIgZD0ibTI4LjAwMDk4LDE5LjYyNWMtLjIxOTczLDAtLjQzMjYyLS4xMTU3Mi0uNTQ2ODgtLjMyMTI5bC01LjUtOS44OTk5Yy0uMTY3OTctLjMwMTc2LS4wNTk1Ny0uNjgyNjIuMjQyMTktLjg1MDEuMzAzNzEtLjE2NzQ4LjY4MTY0LS4wNTkwOC44NDk2MS4yNDI2OGw1LjUsOS44OTk5Yy4xNjc5Ny4zMDE3Ni4wNTk1Ny42ODI2Mi0uMjQyMTkuODUwMS0uMDk2NjguMDUzMjItLjIwMDIuMDc4NjEtLjMwMjczLjA3ODYxWiIvPjwvZz48L3N2Zz4=" alt="Quay" class="redhat-logo-img">
                 </div>
-                <h1 class="main-title">Quay QE Team Changes Analyzer</h1>
-                <p>Analyze and compare code changes across GitHub repositories with ease</p>
+                <h1 class="main-title">Redhat Quay QE Team Changes Analyzer</h1>
             </div>
 
             <!-- User Info Section -->
@@ -376,7 +433,8 @@
                 </div>
                 <small class="text-muted mt-2 d-block">
                     <i class="fas fa-info-circle"></i> 
-                    Need a token? <a href="https://github.com/settings/tokens" target="_blank">Generate one here</a>
+                    Need a token? <a href="https://github.com/settings/tokens" target="_blank">Generate one here</a><br>
+                    <strong>Required scopes:</strong> <code>repo</code> (for private repos) or <code>public_repo</code> (for public repos)
                 </small>
             </div>
 
@@ -391,6 +449,11 @@
                     <li class="nav-item">
                         <a class="nav-link" id="compare-mode-tab" href="#" onclick="switchMode('compare')">
                             <i class="fas fa-code-compare"></i> Branch Comparison
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="pull-requests-mode-tab" href="#" onclick="switchMode('pull-requests')">
+                            <i class="fas fa-code-pull-request"></i> Pull Requests
                         </a>
                     </li>
                 </ul>
@@ -414,19 +477,20 @@
                             <select id="singleBranch" class="form-select">
                                 <option value="master" selected>master</option>
                             </select>
-                            <button class="btn btn-outline-secondary" type="button" onclick="loadBranches('singleRepo', 'singleBranch')" title="Reload branches">
+                            <button class="btn btn-outline-secondary" type="button" onclick="loadBranches('singleRepo', 'singleBranch')" title="Load branches from repository">
                                 <i class="fas fa-sync-alt"></i>
                             </button>
                         </div>
-                        <small class="text-muted">Select repository first to load branches</small>
+                        <small class="text-muted">Click <i class="fas fa-sync-alt"></i> to load branches from repository</small>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Days Back</label>
                         <select id="singleDays" class="form-select">
                             <option value="1">1 day</option>
+                            <option value="3" selected>3 days</option>
                             <option value="7">7 days</option>
                             <option value="14">14 days</option>
-                            <option value="30" selected>30 days</option>
+                            <option value="30">30 days</option>
                             <option value="60">60 days</option>
                             <option value="90">90 days</option>
                         </select>
@@ -468,11 +532,11 @@
                             <select id="baseBranch" class="form-select">
                                 <option value="master" selected>master</option>
                             </select>
-                            <button class="btn btn-outline-secondary" type="button" onclick="loadBranches('compareRepo', 'baseBranch')" title="Reload branches">
+                            <button class="btn btn-outline-secondary" type="button" onclick="loadBranches('compareRepo', 'baseBranch')" title="Load branches from repository">
                                 <i class="fas fa-sync-alt"></i>
                             </button>
                         </div>
-                        <small class="text-muted">Select repository first to load branches</small>
+                        <small class="text-muted">Click <i class="fas fa-sync-alt"></i> to load branches from repository</small>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Compare Branch</label>
@@ -480,11 +544,11 @@
                             <select id="compareBranch" class="form-select">
                                 <option value="redhat-3.15" selected>redhat-3.15</option>
                             </select>
-                            <button class="btn btn-outline-secondary" type="button" onclick="loadBranches('compareRepo', 'compareBranch')" title="Reload branches">
+                            <button class="btn btn-outline-secondary" type="button" onclick="loadBranches('compareRepo', 'compareBranch')" title="Load branches from repository">
                                 <i class="fas fa-sync-alt"></i>
                             </button>
                         </div>
-                        <small class="text-muted">Select repository first to load branches</small>
+                        <small class="text-muted">Click <i class="fas fa-sync-alt"></i> to load branches from repository</small>
                     </div>
                 </div>
                 <div class="row mt-3">
@@ -492,9 +556,10 @@
                         <label class="form-label">Days Back</label>
                         <select id="compareDays" class="form-select">
                             <option value="1">1 day</option>
+                            <option value="3" selected>3 days</option>
                             <option value="7">7 days</option>
                             <option value="14">14 days</option>
-                            <option value="30" selected>30 days</option>
+                            <option value="30">30 days</option>
                             <option value="60">60 days</option>
                             <option value="90">90 days</option>
                         </select>
@@ -511,6 +576,82 @@
                     <div class="col-md-6 d-flex align-items-end">
                         <button type="button" class="btn btn-success" onclick="compareBranches()">
                             <i class="fas fa-balance-scale"></i> Compare Branches
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pull Requests Mode -->
+            <div id="pullRequestsMode" class="form-section" style="display: none;">
+                <h4><i class="fas fa-code-pull-request"></i> Pull Requests Analysis</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">Repository</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fab fa-github"></i></span>
+                            <input type="text" id="prRepo" class="form-control" 
+                                   placeholder="owner/repository or full GitHub URL" value="github.com/quay/quay">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Branch</label>
+                        <div class="input-group">
+                            <select id="prBranch" class="form-select">
+                                <option value="master" selected>master</option>
+                            </select>
+                            <button class="btn btn-outline-secondary" type="button" onclick="loadBranches('prRepo', 'prBranch')" title="Load branches from repository">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted">Click <i class="fas fa-sync-alt"></i> to load branches from repository</small>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">PR State</label>
+                        <select id="prState" class="form-select">
+                            <option value="all" selected>All PRs</option>
+                            <option value="open">Open PRs</option>
+                            <option value="closed">Closed PRs</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Days Back</label>
+                        <select id="prDays" class="form-select">
+                            <option value="">All time</option>
+                            <option value="1">1 day</option>
+                            <option value="3" selected>3 days</option>
+                            <option value="7">7 days</option>
+                            <option value="14">14 days</option>
+                            <option value="30">30 days</option>
+                            <option value="60">60 days</option>
+                            <option value="90">90 days</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">PR Limit</label>
+                        <select id="prLimit" class="form-select">
+                            <option value="10">10 PRs</option>
+                            <option value="20" selected>20 PRs</option>
+                            <option value="50">50 PRs</option>
+                            <option value="100">100 PRs</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Jira ID Filter <small class="text-muted">(optional)</small></label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-ticket-alt"></i></span>
+                            <input type="text" id="prJiraId" class="form-control" 
+                                   placeholder="e.g., PROJQUAY-9184" 
+                                   title="Search in PR titles and descriptions. Can be partial (e.g., 'PROJQUAY' finds all PROJQUAY-* tickets)">
+                        </div>
+                        <small class="form-text text-muted">
+                            🔍 Searches PR titles & descriptions. Use partial IDs like "PROJQUAY" to find all tickets.
+                        </small>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="button" class="btn btn-success w-100" onclick="analyzePullRequests()">
+                            <i class="fas fa-search"></i> Analyze Pull Requests
                         </button>
                     </div>
                 </div>
@@ -723,6 +864,85 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Pull Request results -->
+                <div id="pullRequestResults" style="display: none;">
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="stats-card">
+                                <h5><i class="fas fa-chart-bar"></i> Pull Request Statistics</h5>
+                                <div class="stat-item">
+                                    <span class="stat-label">Repository:</span>
+                                    <span class="stat-value" id="prStatsRepo"></span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Branch:</span>
+                                    <span class="stat-value" id="prStatsBranch"></span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">State Filter:</span>
+                                    <span class="stat-value" id="prStatsState"></span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Time Period:</span>
+                                    <span class="stat-value" id="prStatsDays"></span>
+                                </div>
+                                <div class="stat-item" id="prStatsJiraRow" style="display: none;">
+                                    <span class="stat-label">Jira ID Filter:</span>
+                                    <span class="stat-value" id="prStatsJira"></span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Total PRs:</span>
+                                    <span class="stat-value" id="prStatsTotal"></span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">PRs FROM branch:</span>
+                                    <span class="stat-value" id="prStatsFrom"></span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">PRs TO branch:</span>
+                                    <span class="stat-value" id="prStatsTo"></span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Open PRs:</span>
+                                    <span class="stat-value" id="prStatsOpen"></span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Closed PRs:</span>
+                                    <span class="stat-value" id="prStatsClosed"></span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Draft PRs:</span>
+                                    <span class="stat-value" id="prStatsDraft"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="commit-table">
+                        <div class="section-title">
+                            <i class="fas fa-code-pull-request"></i> Pull Requests
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>PR #</th>
+                                    <th>State</th>
+                                    <th>Type</th>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Updated</th>
+                                    <th>Comments</th>
+                                    <th>Files</th>
+                                    <th>+</th>
+                                    <th>-</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pullRequestsTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -732,28 +952,21 @@
         let currentMode = 'single';
         let githubToken = '';
 
-        // Switch between single and compare modes
+        // Switch between single, compare, and pull-requests modes
         function switchMode(mode) {
             currentMode = mode;
             
             // Update tab appearance
             document.getElementById('single-mode-tab').classList.toggle('active', mode === 'single');
             document.getElementById('compare-mode-tab').classList.toggle('active', mode === 'compare');
+            document.getElementById('pull-requests-mode-tab').classList.toggle('active', mode === 'pull-requests');
             
             // Show/hide appropriate forms
             document.getElementById('singleMode').style.display = mode === 'single' ? 'block' : 'none';
             document.getElementById('compareMode').style.display = mode === 'compare' ? 'block' : 'none';
+            document.getElementById('pullRequestsMode').style.display = mode === 'pull-requests' ? 'block' : 'none';
             
-            // Load branches when switching to compare mode
-            if (mode === 'compare' && githubToken) {
-                const compareRepo = document.getElementById('compareRepo').value.trim();
-                if (compareRepo) {
-                    setTimeout(() => {
-                        loadBranches('compareRepo', 'baseBranch');
-                        loadBranches('compareRepo', 'compareBranch');
-                    }, 100);
-                }
-            }
+            // No automatic branch loading - users will click the reload button manually
             
             // Hide results when switching modes
             document.getElementById('results').style.display = 'none';
@@ -796,7 +1009,7 @@
 
         // Load branches for a repository
         async function loadBranches(repoInputId, branchSelectId) {
-            console.log('loadBranches called with:', repoInputId, branchSelectId);
+            console.log('Manual loadBranches triggered for:', repoInputId, branchSelectId);
             
             // Start timing
             const startTime = performance.now();
@@ -825,6 +1038,12 @@
             console.log('Loading branches for repo:', repo);
             const branchSelect = document.getElementById(branchSelectId);
             const currentValue = branchSelect.value;
+            
+            // Find the load button and show loading state
+            const loadButton = branchSelect.parentElement.querySelector('button');
+            const originalButtonContent = loadButton.innerHTML;
+            loadButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            loadButton.disabled = true;
 
             // Update help text to show loading with timer
             const helpText = branchSelect.closest('.col-md-3').querySelector('small') || 
@@ -921,6 +1140,10 @@
                         helpText.textContent = `${data.branches.length} branches loaded in ${completionTime}s`;
                         helpText.className = 'text-success';
                     }
+                    
+                    // Restore load button
+                    loadButton.innerHTML = originalButtonContent;
+                    loadButton.disabled = false;
                 } else {
                     console.error('Failed to load branches:', data.error);
                     if (helpText && (helpText.tagName === 'SMALL' || helpText.classList.contains('text-info'))) {
@@ -932,6 +1155,10 @@
                         helpText.textContent = `Failed to load branches: ${data.error}`;
                         helpText.className = 'text-danger';
                     }
+                    
+                    // Restore load button
+                    loadButton.innerHTML = originalButtonContent;
+                    loadButton.disabled = false;
                 }
             } catch (error) {
                 console.error('Error loading branches:', error);
@@ -945,6 +1172,10 @@
                     helpText.textContent = `Error loading branches: ${error.message} (${errorTime}s)`;
                     helpText.className = 'text-danger';
                 }
+                
+                // Restore load button
+                loadButton.innerHTML = originalButtonContent;
+                loadButton.disabled = false;
             }
         }
 
@@ -1055,6 +1286,75 @@
             }
         }
 
+        // Analyze pull requests
+        async function analyzePullRequests() {
+            if (!githubToken) {
+                showError('Please validate your GitHub token first');
+                return;
+            }
+
+            const repo = document.getElementById('prRepo').value.trim();
+            const branch = document.getElementById('prBranch').value.trim() || 'main';
+            const state = document.getElementById('prState').value.trim();
+            const daysValue = document.getElementById('prDays').value.trim();
+            const days = daysValue ? parseInt(daysValue) : null;
+            const limit = parseInt(document.getElementById('prLimit').value);
+            const jiraId = document.getElementById('prJiraId').value.trim();
+
+            if (!repo) {
+                showError('Please enter a repository');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const requestData = {
+                    token: githubToken,
+                    repo: repo,
+                    branch: branch,
+                    state: state,
+                    days: days,
+                    limit: limit
+                };
+
+                // Only include jira_id if it's not empty
+                if (jiraId) {
+                    requestData.jira_id = jiraId;
+                }
+
+                const response = await fetch('/api/pull-requests', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                console.log('Pull Requests API response status:', response.status);
+                console.log('Pull Requests API response headers:', response.headers.get('content-type'));
+                
+                // Check if response is HTML (server error page)
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('Server returned non-JSON response:', text.substring(0, 200));
+                    throw new Error('Server is not responding properly. Please ensure the Flask server is running.');
+                }
+
+                const data = await response.json();
+                console.log('Pull Requests API response data:', data);
+
+                if (data.success) {
+                    showPullRequestResults(data);
+                } else {
+                    showError(data.error || 'Failed to fetch pull requests');
+                }
+            } catch (error) {
+                showError('Error fetching pull requests: ' + error.message);
+            }
+        }
+
         // Show single branch results
         function showSingleResults(data) {
             hideLoading();
@@ -1077,6 +1377,7 @@
             // Show results
             document.getElementById('singleResults').style.display = 'block';
             document.getElementById('compareResults').style.display = 'none';
+            document.getElementById('pullRequestResults').style.display = 'none';
             document.getElementById('results').style.display = 'block';
         }
 
@@ -1113,6 +1414,70 @@
             // Show results
             document.getElementById('singleResults').style.display = 'none';
             document.getElementById('compareResults').style.display = 'block';
+            document.getElementById('pullRequestResults').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+        }
+
+        // Show pull request results
+        function showPullRequestResults(data) {
+            hideLoading();
+            
+            // Update statistics
+            document.getElementById('prStatsRepo').textContent = data.repository;
+            document.getElementById('prStatsBranch').textContent = data.branch;
+            document.getElementById('prStatsState').textContent = data.state;
+            document.getElementById('prStatsDays').textContent = data.days ? `Last ${data.days} days` : 'All time';
+            
+            // Show/hide Jira ID filter information
+            if (data.jira_id) {
+                document.getElementById('prStatsJira').innerHTML = `<code>${data.jira_id}</code> <span class="badge bg-info">Active Filter</span>`;
+                document.getElementById('prStatsJiraRow').style.display = 'flex';
+            } else {
+                document.getElementById('prStatsJiraRow').style.display = 'none';
+            }
+            
+            document.getElementById('prStatsTotal').textContent = data.stats.total;
+            document.getElementById('prStatsFrom').textContent = data.stats.from_branch;
+            document.getElementById('prStatsTo').textContent = data.stats.to_branch;
+            document.getElementById('prStatsOpen').textContent = data.stats.open;
+            document.getElementById('prStatsClosed').textContent = data.stats.closed;
+            document.getElementById('prStatsDraft').textContent = data.stats.draft;
+
+            // Populate pull requests table
+            const tbody = document.getElementById('pullRequestsTable');
+            tbody.innerHTML = '';
+
+            if (data.pull_requests && data.pull_requests.length > 0) {
+                data.pull_requests.forEach(pr => {
+                    const row = createPullRequestRow(pr);
+                    tbody.appendChild(row);
+                });
+            } else {
+                // Show helpful message when no PRs found
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `
+                    <td colspan="10" class="text-center py-4">
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>No pull requests found</strong><br>
+                            <small>
+                                This could mean:<br>
+                                • No PRs exist for branch "${data.branch}"<br>
+                                • Try different state filter (open/closed/all)<br>
+                                • Check if branch name is correct<br>
+                                • Expand time period or remove date filter<br>
+                                • Verify repository access permissions
+                            </small>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(emptyRow);
+            }
+
+            // Show results
+            document.getElementById('singleResults').style.display = 'none';
+            document.getElementById('compareResults').style.display = 'none';
+            document.getElementById('pullRequestResults').style.display = 'block';
             document.getElementById('results').style.display = 'block';
         }
 
@@ -1146,11 +1511,22 @@
             const date = new Date(commit.date);
             const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             
+            // Format commit message to show full content
+            const fullMessage = commit.full_message || commit.message;
+            const messageLines = fullMessage.split('\n');
+            const title = messageLines[0];
+            const body = messageLines.slice(1).join('\n').trim();
+            
+            let messageHtml = `<div class="commit-message-title">${escapeHtml(title)}</div>`;
+            if (body) {
+                messageHtml += `<div class="commit-message-body">${escapeHtml(body)}</div>`;
+            }
+            
             row.innerHTML = `
                 <td><a href="${commit.url}" target="_blank" class="commit-sha">${commit.sha}</a></td>
                 <td>${commit.author}</td>
                 <td><small>${formattedDate}</small></td>
-                <td><div class="commit-message" title="${commit.full_message || commit.message}">${commit.message}</div></td>
+                <td><div class="commit-message">${messageHtml}</div></td>
                 <td><span class="badge bg-secondary">${commit.files}</span></td>
                 <td><span class="badge bg-success">+${commit.additions}</span></td>
                 <td><span class="badge bg-danger">-${commit.deletions}</span></td>
@@ -1159,20 +1535,197 @@
             return row;
         }
 
+        // Create pull request table row
+        function createPullRequestRow(pr) {
+            const row = document.createElement('tr');
+            
+            const updatedDate = new Date(pr.updated_at);
+            const createdDate = new Date(pr.created_at);
+            const formattedUpdated = updatedDate.toLocaleDateString() + ' ' + updatedDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const formattedCreated = createdDate.toLocaleDateString();
+            
+            // Determine state color and display
+            let stateClass = 'bg-secondary';
+            let stateText = pr.state.toUpperCase();
+            
+            if (pr.state === 'open') {
+                stateClass = 'bg-success';
+            } else if (pr.state === 'closed') {
+                stateClass = 'bg-danger';
+            }
+            
+            if (pr.draft) {
+                stateText += ' (DRAFT)';
+                stateClass = 'bg-warning text-dark';
+            }
+            
+            // Determine type display
+            let typeText = '';
+            let typeClass = 'bg-info';
+            
+            if (pr.type === 'from') {
+                typeText = `FROM ${pr.head_branch}`;
+                typeClass = 'bg-primary';
+            } else if (pr.type === 'to') {
+                typeText = `TO ${pr.base_branch}`;
+                typeClass = 'bg-success';
+            }
+            
+            // Create detailed title with additional information
+            const titleDetails = createDetailedPRTitle(pr, formattedCreated);
+            
+            row.innerHTML = `
+                <td><a href="${pr.url}" target="_blank" class="commit-sha">#${pr.number}</a></td>
+                <td><span class="badge ${stateClass}">${stateText}</span></td>
+                <td><span class="badge ${typeClass}">${typeText}</span></td>
+                <td><div class="commit-message">${titleDetails}</div></td>
+                <td>${pr.author}</td>
+                <td><small>${formattedUpdated}</small></td>
+                <td><span class="badge bg-secondary">${pr.comments + pr.review_comments}</span></td>
+                <td><span class="badge bg-secondary">${pr.changed_files}</span></td>
+                <td><span class="badge bg-success">+${pr.additions}</span></td>
+                <td><span class="badge bg-danger">-${pr.deletions}</span></td>
+            `;
+            
+            return row;
+        }
+
+        // Create detailed PR title with additional context
+        function createDetailedPRTitle(pr, formattedCreated) {
+            // Check if this PR title contains the current Jira filter (if any)
+            const currentJiraFilter = document.getElementById('prJiraId').value.trim();
+            let displayTitle = pr.title;
+            let hasJiraMatch = false;
+            
+            if (currentJiraFilter) {
+                const upperJiraFilter = currentJiraFilter.toUpperCase();
+                const upperTitle = pr.title.toUpperCase();
+                const upperBody = (pr.body || '').toUpperCase();
+                
+                if (upperTitle.includes(upperJiraFilter) || upperBody.includes(upperJiraFilter)) {
+                    hasJiraMatch = true;
+                    // Highlight the Jira ID in the title if it appears there
+                    if (upperTitle.includes(upperJiraFilter)) {
+                        const regex = new RegExp(`(${currentJiraFilter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                        displayTitle = pr.title.replace(regex, '<mark class="bg-warning text-dark">$1</mark>');
+                    }
+                }
+            }
+            
+            let titleHtml = `<div class="commit-message-title"><strong>${currentJiraFilter && hasJiraMatch && displayTitle.includes('<mark') ? displayTitle : escapeHtml(displayTitle)}</strong></div>`;
+            
+            // Add detailed information
+            let detailsHtml = '<div class="commit-message-body">';
+            
+            // Branch information
+            if (pr.type === 'from') {
+                detailsHtml += `<small class="text-muted">🔄 PR from <code>${pr.head_branch}</code> → <code>${pr.base_branch}</code></small><br>`;
+            } else {
+                detailsHtml += `<small class="text-muted">📥 PR to <code>${pr.base_branch}</code> from <code>${pr.head_branch}</code></small><br>`;
+            }
+            
+            // Creation and update info
+            detailsHtml += `<small class="text-muted">📅 Created: ${formattedCreated}</small><br>`;
+            
+            // Code changes summary
+            if (pr.commits > 0) {
+                detailsHtml += `<small class="text-muted">📊 ${pr.commits} commit${pr.commits > 1 ? 's' : ''}, `;
+                detailsHtml += `${pr.changed_files} file${pr.changed_files > 1 ? 's' : ''} changed</small><br>`;
+            }
+            
+            // Additional indicators
+            let indicators = [];
+            
+            if (pr.draft) {
+                indicators.push('<span class="badge badge-sm bg-warning text-dark">DRAFT</span>');
+            }
+            
+            if (pr.mergeable === false) {
+                indicators.push('<span class="badge badge-sm bg-danger">CONFLICTS</span>');
+            } else if (pr.mergeable === true) {
+                indicators.push('<span class="badge badge-sm bg-success">MERGEABLE</span>');
+            }
+            
+            if (pr.comments > 0 || pr.review_comments > 0) {
+                const totalComments = pr.comments + pr.review_comments;
+                indicators.push(`<span class="badge badge-sm bg-info">${totalComments} comment${totalComments > 1 ? 's' : ''}</span>`);
+            }
+            
+            // Add Jira match indicator if filtering is active
+            if (hasJiraMatch) {
+                indicators.push('<span class="badge badge-sm bg-success"><i class="fas fa-ticket-alt"></i> Jira Match</span>');
+            }
+            
+            if (indicators.length > 0) {
+                detailsHtml += `<small>${indicators.join(' ')}</small>`;
+            }
+            
+            detailsHtml += '</div>';
+            
+            return titleHtml + detailsHtml;
+        }
+
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         // Utility functions
+        let loadingStartTime = null;
+        let loadingTimer = null;
+
         function showLoading() {
+            loadingStartTime = Date.now();
             document.getElementById('results').style.display = 'block';
             document.getElementById('loading').style.display = 'block';
             document.getElementById('error').style.display = 'none';
             document.getElementById('singleResults').style.display = 'none';
             document.getElementById('compareResults').style.display = 'none';
+            document.getElementById('pullRequestResults').style.display = 'none';
+            
+            // Start the timer to update loading message
+            updateLoadingTime();
+            loadingTimer = setInterval(updateLoadingTime, 100); // Update every 100ms
         }
 
         function hideLoading() {
+            if (loadingTimer) {
+                clearInterval(loadingTimer);
+                loadingTimer = null;
+            }
+            
+            // Show final completion time
+            if (loadingStartTime) {
+                const elapsedTime = ((Date.now() - loadingStartTime) / 1000).toFixed(1);
+                console.log(`✅ Data fetched successfully in ${elapsedTime}s`);
+            }
+            
             document.getElementById('loading').style.display = 'none';
         }
 
+        function updateLoadingTime() {
+            if (loadingStartTime) {
+                const elapsedTime = ((Date.now() - loadingStartTime) / 1000).toFixed(1);
+                const loadingElement = document.querySelector('#loading p');
+                if (loadingElement) {
+                    loadingElement.textContent = `Fetching data from GitHub... (${elapsedTime}s)`;
+                }
+            }
+        }
+
         function showError(message) {
+            // Clear the loading timer and show final time on error
+            if (loadingTimer) {
+                clearInterval(loadingTimer);
+                loadingTimer = null;
+            }
+            if (loadingStartTime) {
+                const elapsedTime = ((Date.now() - loadingStartTime) / 1000).toFixed(1);
+                console.log(`❌ Error occurred after ${elapsedTime}s: ${message}`);
+            }
+            
             hideLoading();
             document.getElementById('errorMessage').textContent = message;
             document.getElementById('error').style.display = 'block';
@@ -1184,18 +1737,7 @@
             console.log('Success:', message);
         }
 
-        // Debounce function
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
+        // Debounce function removed - no longer needed since we use manual branch loading
 
         // Check server status
         async function checkServerStatus() {
@@ -1230,61 +1772,11 @@
                 validateToken();
             }
 
-            // Add event listeners for repository changes
-            const singleRepoInput = document.getElementById('singleRepo');
-            if (singleRepoInput) {
-                console.log('Adding event listeners to single repository input');
-                
-                const debouncedLoadBranches = debounce(() => {
-                    console.log('Debounced loadBranches triggered for single repo');
-                    loadBranches('singleRepo', 'singleBranch');
-                }, 1000);
-                
-                singleRepoInput.addEventListener('input', debouncedLoadBranches);
-                singleRepoInput.addEventListener('blur', () => {
-                    console.log('Repository input blur event triggered for single repo');
-                    loadBranches('singleRepo', 'singleBranch');
-                });
-                
-                // Also load branches immediately if repo is already filled
-                if (singleRepoInput.value.trim()) {
-                    console.log('Single repository already has value, loading branches immediately');
-                    setTimeout(() => loadBranches('singleRepo', 'singleBranch'), 500);
-                }
-            } else {
-                console.error('Could not find singleRepo input element');
-            }
+            // No automatic branch loading for single mode - users will click the reload button
 
-            // Add event listeners for comparison repository changes
-            const compareRepoInput = document.getElementById('compareRepo');
-            if (compareRepoInput) {
-                console.log('Adding event listeners to comparison repository input');
-                
-                const debouncedLoadCompareBranches = debounce(() => {
-                    console.log('Debounced loadBranches triggered for compare repo');
-                    // Load branches for both base and compare branch selects
-                    loadBranches('compareRepo', 'baseBranch');
-                    loadBranches('compareRepo', 'compareBranch');
-                }, 1000);
-                
-                compareRepoInput.addEventListener('input', debouncedLoadCompareBranches);
-                compareRepoInput.addEventListener('blur', () => {
-                    console.log('Repository input blur event triggered for compare repo');
-                    loadBranches('compareRepo', 'baseBranch');
-                    loadBranches('compareRepo', 'compareBranch');
-                });
-                
-                // Also load branches immediately if repo is already filled
-                if (compareRepoInput.value.trim()) {
-                    console.log('Compare repository already has value, loading branches immediately');
-                    setTimeout(() => {
-                        loadBranches('compareRepo', 'baseBranch');
-                        loadBranches('compareRepo', 'compareBranch');
-                    }, 500);
-                }
-            } else {
-                console.error('Could not find compareRepo input element');
-            }
+            // No automatic branch loading for compare mode - users will click the reload buttons
+
+            // No automatic branch loading for pull requests mode - users will click the reload button
         };
 
         // Save token to localStorage when validated

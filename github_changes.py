@@ -218,14 +218,166 @@ def normalize_repo_name(repo):
     
     return repo
 
+def get_pull_requests(repo, branch, state='all', days=None, jira_id=None):
+    """Get pull requests for a specific branch, optionally filtered by Jira ID."""
+    try:
+        # Calculate the date threshold if days is specified
+        since_date = None
+        if days:
+            # Create timezone-aware datetime to match GitHub API responses
+            from datetime import timezone
+            since_date = datetime.now(timezone.utc) - timedelta(days=days)
+        
+        # Get pull requests
+        pulls = repo.get_pulls(state=state, sort='updated', direction='desc')
+        
+        pull_requests = []
+        pull_list = list(pulls)
+        
+        if not pull_list:
+            return pull_requests
+        
+        for pr in track(pull_list, description=f"Fetching pull requests for {branch}..."):
+            # Filter by branch (head branch for PRs created from this branch, or base branch for PRs targeting this branch)
+            include_pr = False
+            pr_type = None
+            
+            if pr.head.ref == branch:
+                include_pr = True
+                pr_type = "from"  # PR created from this branch
+            elif pr.base.ref == branch:
+                include_pr = True
+                pr_type = "to"    # PR targeting this branch
+            
+            if include_pr:
+                # Apply date filter if specified
+                if since_date:
+                    try:
+                        # Ensure both datetimes are comparable
+                        pr_updated = pr.updated_at
+                        if pr_updated.tzinfo is None:
+                            # If PR datetime is naive, make it UTC
+                            from datetime import timezone
+                            pr_updated = pr_updated.replace(tzinfo=timezone.utc)
+                        
+                        if pr_updated < since_date:
+                            continue
+                    except Exception as date_error:
+                        console.print(f"[yellow]Date comparison error for PR #{pr.number}: {date_error}[/yellow]")
+                        # If date comparison fails, include the PR to be safe
+                        pass
+                
+                # Apply Jira ID filter if specified
+                if jira_id:
+                    jira_pattern = jira_id.upper()
+                    pr_title = pr.title.upper()
+                    pr_body = (pr.body or "").upper()
+                    
+                    # Check if Jira ID is mentioned in title or body
+                    if jira_pattern not in pr_title and jira_pattern not in pr_body:
+                        continue
+                
+                pr_info = {
+                    'number': pr.number,
+                    'title': pr.title,
+                    'state': pr.state,
+                    'author': pr.user.login if pr.user else 'Unknown',
+                    'created_at': pr.created_at,
+                    'updated_at': pr.updated_at,
+                    'head_branch': pr.head.ref,
+                    'base_branch': pr.base.ref,
+                    'url': pr.html_url,
+                    'type': pr_type,
+                    'draft': pr.draft,
+                    'mergeable': pr.mergeable,
+                    'comments': pr.comments,
+                    'review_comments': pr.review_comments,
+                    'commits': pr.commits,
+                    'additions': pr.additions,
+                    'deletions': pr.deletions,
+                    'changed_files': pr.changed_files
+                }
+                pull_requests.append(pr_info)
+        
+        # Sort by updated_at descending (most recent first)
+        pull_requests.sort(key=lambda x: x['updated_at'], reverse=True)
+        
+        return pull_requests
+    except Exception as e:
+        console.print(f"[red]Error fetching pull requests for {branch}: {str(e)}[/red]")
+        return []
+
+def display_pull_requests_table(pull_requests, title, max_rows=None):
+    """Display pull requests in a formatted table."""
+    if not pull_requests:
+        console.print(f"[yellow]No pull requests found.[/yellow]")
+        return
+    
+    # Limit rows if specified
+    display_prs = pull_requests[:max_rows] if max_rows else pull_requests
+    
+    # Create and populate the table
+    table = Table(show_header=True, header_style="bold magenta", title=title)
+    table.add_column("PR #", style="cyan")
+    table.add_column("State", style="blue")
+    table.add_column("Type", style="yellow")
+    table.add_column("Title", style="white")
+    table.add_column("Author", style="green")
+    table.add_column("Updated", style="dim")
+    table.add_column("Comments", justify="right", style="magenta")
+    table.add_column("Files", justify="right", style="yellow")
+    table.add_column("+", justify="right", style="green")
+    table.add_column("-", justify="right", style="red")
+    
+    for pr in display_prs:
+        # Determine state color
+        state_color = {
+            'open': 'green',
+            'closed': 'red',
+            'merged': 'blue'
+        }.get(pr['state'], 'white')
+        
+        # Determine type display
+        type_display = {
+            'from': f"FROM {pr['head_branch']}",
+            'to': f"TO {pr['base_branch']}"
+        }.get(pr['type'], 'UNKNOWN')
+        
+        # Add draft indicator
+        if pr['draft']:
+            state_display = f"[dim]{pr['state'].upper()} (DRAFT)[/dim]"
+        else:
+            state_display = pr['state'].upper()
+        
+        table.add_row(
+            f"#{pr['number']}",
+            f"[{state_color}]{state_display}[/{state_color}]",
+            type_display,
+            pr['title'][:80] + "..." if len(pr['title']) > 80 else pr['title'],
+            pr['author'],
+            pr['updated_at'].strftime("%Y-%m-%d %H:%M"),
+            str(pr['comments'] + pr['review_comments']),
+            str(pr['changed_files']),
+            str(pr['additions']),
+            str(pr['deletions'])
+        )
+    
+    if max_rows and len(pull_requests) > max_rows:
+        table.caption = f"Showing {max_rows} of {len(pull_requests)} pull requests"
+    
+    console.print(table)
+
 @click.command()
 @click.option('--token', envvar='GITHUB_TOKEN', help='GitHub personal access token')
-@click.option('--days', default=30, type=int, help='Number of days to look back for changes (default: 30)')
+@click.option('--days', default=3, type=int, help='Number of days to look back for changes (default: 3)')
 @click.option('--compare', help='Compare two branches (format: base_branch..compare_branch)')
-@click.option('--limit', default=20, type=int, help='Limit number of commits to display per branch (default: 20)')
+@click.option('--pull-requests', is_flag=True, help='List pull requests for the specified branch')
+@click.option('--pr-state', default='all', type=click.Choice(['open', 'closed', 'all']), help='Filter pull requests by state (default: all)')
+@click.option('--jira-id', help='Filter pull requests containing this Jira ID (e.g., PROJQUAY-9184)')
+@click.option('--limit', default=20, type=int, help='Limit number of commits/PRs to display per branch (default: 20)')
 @click.argument('repo', required=True)
 @click.argument('branch', default='main')
-def main(token, repo, branch, days, compare, limit):
+def main(token, repo, branch, days, compare, pull_requests, pr_state, jira_id, limit):
     """
     CLI utility to list code changes from a GitHub repository.
     
@@ -239,7 +391,10 @@ def main(token, repo, branch, days, compare, limit):
     Use --compare to compare two branches:
     --compare main..feature-branch
     
-    Use --days to filter by time period (works with both single branch and comparison modes)
+    Use --pull-requests to list pull requests for the branch:
+    --pull-requests --pr-state open
+    
+    Use --days to filter by time period (works with all modes)
     """
     if not token:
         console.print("[red]Error: GitHub token is required. Either provide --token or set GITHUB_TOKEN environment variable.[/red]")
@@ -253,7 +408,44 @@ def main(token, repo, branch, days, compare, limit):
         g = Github(token)
         github_repo = g.get_repo(normalized_repo)
         
-        if compare:
+        if pull_requests:
+            # Pull requests mode
+            console.print(f"\n[blue]Repository:[/blue] {normalized_repo}")
+            console.print(f"[blue]Branch:[/blue] {branch}")
+            console.print(f"[blue]State Filter:[/blue] {pr_state}")
+            if days:
+                console.print(f"[blue]Time Period:[/blue] Last {days} days")
+            if jira_id:
+                console.print(f"[blue]Jira ID Filter:[/blue] {jira_id}")
+            console.print()
+            
+            # Get pull requests
+            prs = get_pull_requests(github_repo, branch, pr_state, days, jira_id)
+            
+            if not prs:
+                console.print(f"[yellow]No pull requests found for branch '{branch}' with state '{pr_state}'.[/yellow]")
+                return
+            
+            # Create summary panel
+            from_branch_prs = [pr for pr in prs if pr['type'] == 'from']
+            to_branch_prs = [pr for pr in prs if pr['type'] == 'to']
+            
+            summary_panel = Panel(
+                f"[bold]Total Pull Requests:[/bold] {len(prs)}\n"
+                f"[bold]PRs FROM {branch}:[/bold] {len(from_branch_prs)}\n"
+                f"[bold]PRs TO {branch}:[/bold] {len(to_branch_prs)}\n"
+                f"[bold]Open PRs:[/bold] {len([pr for pr in prs if pr['state'] == 'open'])}\n"
+                f"[bold]Closed PRs:[/bold] {len([pr for pr in prs if pr['state'] == 'closed'])}\n"
+                f"[bold]Draft PRs:[/bold] {len([pr for pr in prs if pr['draft']])}",
+                title=f"📋 Pull Request Summary for {branch}",
+                border_style="blue"
+            )
+            console.print(summary_panel)
+            console.print()
+            
+            display_pull_requests_table(prs, f"Pull Requests for {branch}", limit)
+            
+        elif compare:
             # Branch comparison mode
             if '..' not in compare:
                 console.print("[red]Error: Compare format should be 'base_branch..compare_branch'[/red]")
