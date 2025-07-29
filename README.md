@@ -12,7 +12,7 @@ A comprehensive tool to analyze and compare code changes from GitHub repositorie
 ### Complare Branch:
 <img width="1200" height="1003" alt="image" src="https://github.com/user-attachments/assets/81695c7d-bd17-4d4c-85b8-0b297218a743" />
 
-### Inout the Jira ID:
+### Provide Quay Jira ID:
 <img width="1200" height="1003" alt="image" src="https://github.com/user-attachments/assets/6e8631e6-db24-4f1c-a63e-5e918adfc868" />
 
 
